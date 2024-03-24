@@ -1,0 +1,81 @@
+from decimal import Decimal
+from datetime import date
+
+goods = {}
+
+def add(items, title, amount, expiration_date=None):
+    if title in items:
+        items[title].append({'amount': amount, 'expiration_date': expiration_date})
+    else:
+        items[title] = [{'amount': amount, 'expiration_date': expiration_date}]
+
+add(goods, 'Яйца Фабрики №1', Decimal('4'), date(2023, 7, 15))
+
+print(goods)
+
+from decimal import Decimal
+from datetime import datetime
+
+DATE_FORMAT = '%Y-%m-%d'
+
+def add_by_note(items, note):
+    qwe = note.split()
+    amount = Decimal(qwe[-2])
+    expiration_date = datetime.strptime(qwe[-1], DATE_FORMAT)
+    title = ' '.join(qwe[:-2])
+    add(items, title, amount, expiration_date)
+
+add_by_note(goods, 'Яйца 4 2024-03-15')
+add_by_note(goods, 'Яйца 4 2024-03-20')
+
+print(goods)
+
+
+from decimal import Decimal
+from datetime import datetime
+
+def expire(items, in_advance_days=0):
+    expired_items = {}
+
+    for title, value in items.items():
+        for item in value:
+            if item['expiration_date'] is not None:
+                expiration_days = (item['expiration_date'] - datetime.today().date()).days
+                if expiration_days <= in_advance_days:
+                    expired_items[title] = expired_items.get(title, Decimal(0)) + item['amount']
+
+    return expired_items
+
+expired_goods = expire(goods)
+print(expired_goods)
+
+def find(items, needle):
+    result = []
+
+    for key in items.keys():
+        if key.lower().find(needle.lower()) != -1:
+            result.append(key)
+
+    return result
+
+result = find(goods, "яйца")
+print(result)
+
+
+def amount(items, needle):
+    total_amount = Decimal(0)
+    for item in items.get(needle, []):
+        total_amount += item.get('amount', Decimal(0))
+
+    return total_amount
+
+total_eggs_amount = amount(goods, 'Яйца Фабрики №1')
+print(total_eggs_amount)
+
+add_by_note(goods, 'Яйца гусиные 4 2024-03-15')
+add_by_note(goods, 'Яйца гусиные 4 2024-03-20')
+add_by_note(goods, 'Яйца гусиные 4 2024-03-22')
+add_by_note(goods, 'Петрушка 2 2024-03-21')
+
+add(goods, 'Яйца Фабрики №1', Decimal('4'), date(2023, 7, 15))
+print(goods)
